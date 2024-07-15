@@ -27,7 +27,7 @@ GO
 CREATE TABLE users (
     id INT PRIMARY KEY IDENTITY(1,1),
     name VARCHAR(50),
-    age INT
+    email VARCHAR(50)
 );
 </code></pre>
 
