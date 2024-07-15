@@ -31,7 +31,7 @@ CREATE TABLE users (
 );
 </code></pre>
 
-<h3>Retrieving Data</h3>
+### Retrieving Data
 <pre><code>
 SELECT * FROM users;
 </code></pre>
@@ -39,7 +39,7 @@ SELECT * FROM users;
 SELECT @@SERVERNAME;
 </code></pre>
 
-<h3>Modifying Table Structure</h3>
+### Modifying Table Structure
 <pre><code>
 ALTER TABLE users
 DROP COLUMN email;
