@@ -14,7 +14,7 @@ This project demonstrates basic CRUD (Create, Read, Update, Delete) operations u
 * Session State: Uses Streamlit's session_state to maintain the database connection across different interactions without reconnecting unnecessarily.
 
 ## Usefull SQL Quories I have been using
-<h3>Creating Database and Table</h3>
+### Creating Database and Table
 <pre><code>
 CREATE DATABASE crud_test
 GO
@@ -34,6 +34,8 @@ CREATE TABLE users (
 <h3>Retrieving Data</h3>
 <pre><code>
 SELECT * FROM users;
+</code></pre>
+<pre><code>
 SELECT @@SERVERNAME;
 </code></pre>
 
