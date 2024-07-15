@@ -33,8 +33,8 @@ CREATE TABLE users (
 
 <h3>Retrieving Data</h3>
 <pre><code>
--- SELECT * FROM users;
--- SELECT @@SERVERNAME;
+SELECT * FROM users;
+SELECT @@SERVERNAME;
 </code></pre>
 
 <h3>Modifying Table Structure</h3>
