@@ -80,6 +80,13 @@ def main():
                     if user_id:
                         delete_data(conn, st.session_state['username'], user_id)
 
+                # Display all users after update
+                st.subheader("All Users")
+                all_rows = get_all_data(conn)
+                if all_rows:
+                    for row in all_rows:
+                        st.write(f"ID: {row.id}, Name: {row.name}, Age: {row.age}")
+
         # Note: Do not close connection here to avoid premature closure
 
 if __name__ == "__main__":
