@@ -5,8 +5,8 @@ def connect_to_app_database():
     try:
         conn = pyodbc.connect(
             "Driver={ODBC Driver 17 for SQL Server};"
-            "Server=ChristofferPC;"
-            "Database=crud_test;"
+            "Server=YourServerName;"
+            "Database=YourDatabaseName;"
             "Trusted_Connection=yes;"
         )
         return conn
@@ -18,8 +18,8 @@ def connect_to_log_database():
     try:
         conn = pyodbc.connect(
             "Driver={ODBC Driver 17 for SQL Server};"
-            "Server=ChristofferPC;"
-            "Database=crud_test;"
+            "Server=YourServerName;"
+            "Database=YourDatabaseName;"
             "Trusted_Connection=yes;"
         )
         return conn
