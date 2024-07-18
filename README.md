@@ -1,58 +1,48 @@
-# Streamlit-SQL-CRUD-Operations
+    <h1>Streamlit-SQL-CRUD-Operations</h1>
 
-This project demonstrates basic CRUD (Create, Read, Update, Delete) operations using Streamlit for a SQL Server database. It allows users to interact with a database through a web interface built with Streamlit, making it easy to manage user data.
+    <p>This project showcases basic CRUD (Create, Read, Update, Delete) operations using Streamlit to interact with a SQL Server database. It provides a user-friendly web interface for managing user data efficiently, along with logging functionalities to track user actions.</p>
 
-## Functionality
-* Create User: Allows inserting a new user with name and age into the database.
-* View Users: Displays all users currently stored in the database.
-* Update User: Updates the name and age of an existing user in the database.
-* Delete User: Removes a user from the database based on their ID.
+    <h2>Functionality</h2>
+    <ul>
+        <li><strong>Create User:</strong> Insert a new user with name and age into the database.</li>
+        <li><strong>View Users:</strong> Display all users currently stored in the database.</li>
+        <li><strong>Update User:</strong> Modify the name and age of an existing user.</li>
+        <li><strong>Delete User:</strong> Remove a user from the database based on their ID.</li>
+    </ul>
 
-## How It Works
-* Connection to Database: Establishes a connection to a SQL Server database using pyodbc.
-* CRUD Operations: Each operation (Create, Read, Update, Delete) is handled through functions interacting with the database.
-* Session State: Uses Streamlit's session_state to maintain the database connection across different interactions without reconnecting unnecessarily.
+    <h3>Logging</h3>
+    <ul>
+        <li><strong>Action Logging:</strong> Logs user actions such as user creation, updates, and deletions, capturing details like username, user ID, action performed, and timestamp.</li>
+    </ul>
 
-## Usefull SQL Quories I have been using
-### Creating Database and Table
-<pre><code>
-CREATE DATABASE crud_test
-GO
-</code></pre>
-<pre><code>
-USE crud_test
-GO
-</code></pre>
-<pre><code>
+    <h2>How It Works</h2>
+    <ul>
+        <li><strong>Connection to Database:</strong> Establishes a connection to a SQL Server database using pyodbc.</li>
+        <li><strong>CRUD Operations:</strong> Each operation is managed through dedicated functions interacting directly with the database.</li>
+        <li><strong>Session State Management:</strong> Utilizes Streamlit's session_state feature to maintain the database connection across different interactions, improving performance and usability.</li>
+    </ul>
+
+    <h2>Useful SQL Queries</h2>
+
+    <h3>Creating Database and Table</h3>
+    <pre><code>CREATE DATABASE crud_test;
+USE crud_test;
 CREATE TABLE users (
     id INT PRIMARY KEY IDENTITY(1,1),
     name VARCHAR(50),
-    email VARCHAR(50)
-);
-</code></pre>
+    age INT
+);</code></pre>
 
-### Retrieving Data
-<pre><code>
-SELECT * FROM users;
-</code></pre>
-<pre><code>
-SELECT @@SERVERNAME;
-</code></pre>
+    <h3>Retrieving Data</h3>
+    <pre><code>SELECT * FROM users;
+SELECT @@SERVERNAME;</code></pre>
 
-### Modifying Table Structure
-<pre><code>
+    <h3>Modifying Table Structure</h3>
+    <pre><code>ALTER TABLE users
+DROP COLUMN age;
+ALTER TABLE users
+ADD email VARCHAR(50);
 ALTER TABLE users
 DROP COLUMN email;
-</code></pre>
-<pre><code>
 ALTER TABLE users
-ADD age INT;
-</code></pre>
-<pre><code>
-ALTER TABLE users
-DROP COLUMN age;
-</code></pre>
-<pre><code>
-ALTER TABLE users
-ADD age INT CHECK (age >= 0 AND age <= 150);
-</code></pre>
+ADD age INT CHECK (age >= 0 AND age <= 150);</code></pre>
