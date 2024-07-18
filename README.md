@@ -3,12 +3,10 @@
 This project showcases basic CRUD (Create, Read, Update, Delete) operations using Streamlit to interact with a SQL Server database. It provides a user-friendly web interface for managing user data efficiently, along with logging functionalities to track user actions.
 
 ## Functionality
-<ul>
-        <li><strong>Create User:</strong> Insert a new user with name and age into the database.</li>
-        <li><strong>View Users:</strong> Display all users currently stored in the database.</li>
-        <li><strong>Update User:</strong> Modify the name and age of an existing user.</li>
-        <li><strong>Delete User:</strong> Remove a user from the database based on their ID.</li>
-</ul>
+- <b>Create User:</b> Insert a new user with name and age into the database.
+- <b>View Users:</b> Display all users currently stored in the database.
+- <b>Update User:</b> Modify the name and age of an existing user.
+- <b>Delete User:</b> Remove a user from the database based on their ID.
 
 ### Logging
 - <strong>Action Logging:</strong> Logs user actions such as user creation, updates, and deletions, capturing details like username, user ID, action performed, and timestamp.
