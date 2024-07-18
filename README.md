@@ -1,4 +1,4 @@
-<h1>Streamlit SQL / CRUD / Logging - Operations</h1>
+# Streamlit SQL / CRUD / Logging - Operations
 
 This project showcases basic CRUD (Create, Read, Update, Delete) operations using Streamlit to interact with a SQL Server database. It provides a user-friendly web interface for managing user data efficiently, along with logging functionalities to track user actions.
 
