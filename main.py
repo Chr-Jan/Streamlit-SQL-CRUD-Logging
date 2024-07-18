@@ -1,3 +1,4 @@
+import pyodbc
 import streamlit as st
 from database.connection import connect_to_app_database
 from database.init_db import create_table, create_log_table
@@ -10,6 +11,16 @@ def authenticate(username, password):
         return True
     else:
         return False
+
+# Function to display all users
+def display_users(conn):
+    st.subheader("All Users")
+    all_rows = get_all_data(conn)
+    if all_rows:
+        for row in all_rows:
+            st.write(f"ID: {row.id}, Name: {row.name}, Age: {row.age}")
+    else:
+        st.info("No users found.")
 
 # Main Streamlit application
 def main():
@@ -47,15 +58,11 @@ def main():
                 if st.button("Create"):
                     if name and age:
                         insert_data(conn, st.session_state['username'], name, age)
+                        display_users(conn)
 
             elif operation == "Read":
                 st.subheader("View Users")
-                rows = get_all_data(conn)
-                if rows:
-                    for row in rows:
-                        st.write(f"ID: {row.id}, Name: {row.name}, Age: {row.age}")
-                else:
-                    st.info("No users found.")
+                display_users(conn)
 
             elif operation == "Update":
                 st.subheader("Update User")
@@ -65,13 +72,7 @@ def main():
                 if st.button("Update"):
                     if user_id and name and age:
                         update_data(conn, st.session_state['username'], user_id, name, age)
-
-                # Display all users after update
-                st.subheader("All Users")
-                all_rows = get_all_data(conn)
-                if all_rows:
-                    for row in all_rows:
-                        st.write(f"ID: {row.id}, Name: {row.name}, Age: {row.age}")
+                        display_users(conn)
 
             elif operation == "Delete":
                 st.subheader("Delete User")
@@ -79,13 +80,7 @@ def main():
                 if st.button("Delete"):
                     if user_id:
                         delete_data(conn, st.session_state['username'], user_id)
-
-                # Display all users after update
-                st.subheader("All Users")
-                all_rows = get_all_data(conn)
-                if all_rows:
-                    for row in all_rows:
-                        st.write(f"ID: {row.id}, Name: {row.name}, Age: {row.age}")
+                        display_users(conn)
 
         # Note: Do not close connection here to avoid premature closure
 

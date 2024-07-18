@@ -26,8 +26,7 @@ def create_log_table(conn):
                 user_id INT,
                 username VARCHAR(50),
                 action TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id)
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         """)
         conn.commit()

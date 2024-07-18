@@ -1,16 +1,44 @@
 import pyodbc
 import streamlit as st
+from datetime import datetime
 from database.connection import connect_to_log_database
 
 def log_action(username, user_id, action):
     log_conn = connect_to_log_database()
     if log_conn:
         try:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             cursor = log_conn.cursor()
-            cursor.execute("INSERT INTO logs (username, user_id, action) VALUES (?, ?, ?)", (username, user_id, action))
+            cursor.execute("INSERT INTO logs (user_id, username, action, timestamp) VALUES (?, ?, ?, ?)",
+                           (user_id, username, action, timestamp))
             log_conn.commit()
         except pyodbc.Error as e:
             st.error(f"Error logging action: {e}")
+
+def delete_data(conn, username, user_id):
+    try:
+        cursor = conn.cursor()
+
+        # Check if user_id exists in users table
+        cursor.execute("SELECT COUNT(*) FROM users WHERE id = ?", (user_id,))
+        if cursor.fetchone()[0] == 0:
+            st.error(f"User with ID {user_id} does not exist.")
+            return
+        
+        # Check if user_id has references in logs table
+        cursor.execute("SELECT COUNT(*) FROM logs WHERE user_id = ?", (user_id,))
+        if cursor.fetchone()[0] > 0:
+            st.error(f"Cannot delete user with ID {user_id} because there are logs associated with this user.")
+            return
+        
+        # Proceed with deletion if user_id exists and has no references in logs table
+        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+        st.success(f"Deleted user with ID {user_id} from 'users' table")
+        log_action(username, user_id, f"Deleted user with ID {user_id}")
+    except pyodbc.Error as e:
+        st.error(f"Error deleting data: {e}")
+
 
 def insert_data(conn, username, name, age):
     try:
@@ -47,12 +75,3 @@ def update_data(conn, username, user_id, name, age):
     except pyodbc.Error as e:
         st.error(f"Error updating data: {e}")
 
-def delete_data(conn, username, user_id):
-    try:
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
-        conn.commit()
-        st.success(f"Deleted user with ID {user_id} from 'users' table")
-        log_action(username, user_id, f"Deleted user with ID {user_id}")
-    except pyodbc.Error as e:
-        st.error(f"Error deleting data: {e}")
