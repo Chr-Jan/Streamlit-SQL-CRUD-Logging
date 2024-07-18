@@ -20,8 +20,8 @@ This project showcases basic CRUD (Create, Read, Update, Delete) operations usin
 
 ## Useful SQL Queries
 
-<h3>Creating Database and Table</h3>
-    <pre><code>CREATE DATABASE crud_test;
+### Creating Database and Table
+<pre><code>CREATE DATABASE crud_test;
 USE crud_test;
 CREATE TABLE users (
     id INT PRIMARY KEY IDENTITY(1,1),
@@ -29,12 +29,12 @@ CREATE TABLE users (
     age INT
 );</code></pre>
 
-<h3>Retrieving Data</h3>
-    <pre><code>SELECT * FROM users;
+### Retrieving Data
+<pre><code>SELECT * FROM users;
 SELECT @@SERVERNAME;</code></pre>
 
-<h3>Modifying Table Structure</h3>
-    <pre><code>ALTER TABLE users
+### Modifying Table Structure
+<pre><code>ALTER TABLE users
 DROP COLUMN age;
 ALTER TABLE users
 ADD email VARCHAR(50);
