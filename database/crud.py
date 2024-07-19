@@ -55,10 +55,10 @@ def insert_data(conn, username, name, age):
     except pyodbc.Error as e:
         st.error(f"Error inserting data: {e}")
 
-def get_all_data(conn):
+def get_all_data(conn, table="users"):
     try:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users")
+        cursor.execute(f"SELECT * FROM {table}")
         rows = cursor.fetchall()
         return rows
     except pyodbc.Error as e:
@@ -74,4 +74,3 @@ def update_data(conn, username, user_id, name, age):
         log_action(username, user_id, f"Updated user with ID {user_id} to name '{name}' and age {age}")
     except pyodbc.Error as e:
         st.error(f"Error updating data: {e}")
-

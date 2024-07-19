@@ -2,15 +2,28 @@ import pyodbc
 import streamlit as st
 from database.connection import connect_to_app_database
 from database.init_db import create_table, create_log_table
-from database.crud import insert_data, get_all_data, update_data, delete_data
+from database.crud import insert_data, get_all_data, update_data, delete_data, log_action
 
 # Simple authentication function
 def authenticate(username, password):
     # Hardcoded credentials (replace with database lookup in real scenario)
     if username == "admin" and password == "password":
+        st.session_state['role'] = 'admin'
+        return True
+    elif username == "user" and password == "password":
+        st.session_state['role'] = 'user'
         return True
     else:
         return False
+
+def display_logs(conn):
+    st.subheader("All Logs")
+    all_rows = get_all_data(conn, "logs")
+    if all_rows:
+        for row in all_rows:
+            st.write(f"ID: {row.log_id}, User ID: {row.user_id}, Username: {row.username}, Action: {row.action}, Timestamp: {row.timestamp}")
+    else:
+        st.info("No logs found.")
 
 # Function to display all users
 def display_users(conn):
@@ -27,6 +40,8 @@ def main():
     # Initialize session state
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
+    if 'role' not in st.session_state:
+        st.session_state['role'] = None
 
     # Login form
     if not st.session_state['authenticated']:
@@ -82,7 +97,12 @@ def main():
                     if user_id:
                         delete_data(conn, st.session_state['username'], user_id)
 
-        # Note: Do not close connection here to avoid premature closure
+            if st.session_state['role'] == 'admin':
+                st.sidebar.header("Admin Operations")
+                if st.sidebar.button("View Logs"):
+                    display_logs(conn)
+        else:
+            st.error("Failed to connect to the database")
 
 if __name__ == "__main__":
     main()
