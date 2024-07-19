@@ -55,10 +55,10 @@ def main():
                 st.subheader("Create User")
                 name = st.text_input("Name:")
                 age = st.number_input("Age:", min_value=0, max_value=150, step=1)
+                display_users(conn)
                 if st.button("Create"):
                     if name and age:
                         insert_data(conn, st.session_state['username'], name, age)
-                        display_users(conn)
 
             elif operation == "Read":
                 st.subheader("View Users")
@@ -69,18 +69,18 @@ def main():
                 user_id = st.number_input("Enter User ID to update:", min_value=1, step=1)
                 name = st.text_input("New Name:")
                 age = st.number_input("New Age:", min_value=0, max_value=150, step=1)
+                display_users(conn)
                 if st.button("Update"):
                     if user_id and name and age:
                         update_data(conn, st.session_state['username'], user_id, name, age)
-                        display_users(conn)
 
             elif operation == "Delete":
                 st.subheader("Delete User")
                 user_id = st.number_input("Enter User ID to delete:", min_value=1, step=1)
+                display_users(conn)
                 if st.button("Delete"):
                     if user_id:
                         delete_data(conn, st.session_state['username'], user_id)
-                        display_users(conn)
 
         # Note: Do not close connection here to avoid premature closure
 
