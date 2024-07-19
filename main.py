@@ -1,12 +1,14 @@
 import pyodbc
 import streamlit as st
+from time import sleep
 from database.connection import connect_to_app_database
 from database.init_db import create_table, create_log_table
 from database.crud import insert_data, get_all_data, update_data, delete_data, log_action
 
 # Simple authentication function
 def authenticate(username, password):
-    # Hardcoded credentials (replace with database lookup in real scenario)
+    # Hardcoded credentials
+    # (replace with database lookup)
     if username == "admin" and password == "password":
         st.session_state['role'] = 'admin'
         return True
@@ -34,6 +36,14 @@ def display_users(conn):
             st.write(f"ID: {row.id}, Name: {row.name}, Age: {row.age}")
     else:
         st.info("No users found.")
+
+def logout():
+    st.session_state['authenticated'] = False
+    st.session_state['username'] = None
+    st.session_state['role'] = None
+    st.info("Logged out successfully!")
+    sleep(0.5)
+    st.experimental_rerun()
 
 # Main Streamlit application
 def main():
@@ -96,6 +106,9 @@ def main():
                 if st.button("Delete"):
                     if user_id:
                         delete_data(conn, st.session_state['username'], user_id)
+
+            if st.sidebar.button("Logout"):
+                logout()
 
             if st.session_state['role'] == 'admin':
                 st.sidebar.header("Admin Operations")
