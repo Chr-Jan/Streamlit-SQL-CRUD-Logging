@@ -1,7 +1,7 @@
 import pyodbc
 import streamlit as st
 from datetime import datetime
-from database.connection import connect_to_log_database
+from database.connection import connect_to_log_database, connect_user_database
 
 def log_action(username, user_id, action):
     log_conn = connect_to_log_database()
@@ -15,12 +15,33 @@ def log_action(username, user_id, action):
         except pyodbc.Error as e:
             st.error(f"Error logging action: {e}")
 
-def delete_data(conn, username, user_id):
+def get_user_data(username, password):
+    user_conn = connect_user_database()
+    try:
+        cursor = user_conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE username =? AND password =?", (username, password))
+        user_conn.commit()
+    except pyodbc.Error as e:
+        st.error(f"Error logging action: {e}")
+
+def user_action(username, user_id, password):
+    user_conn = connect_user_database()
+    try:
+        cursor = user_conn.cursor()
+        cursor.execute(f"SELECT * FROM {table}") # type: ignore
+        rows = cursor.fetchall()
+        return rows
+    except pyodbc.Error as e:
+        st.error(f"Error retrieving data: {e}")
+        return None
+
+def delete_data(conn, username, user_id, password):
+    conn = connect_user_database()
     try:
         cursor = conn.cursor()
 
-        # Check if user_id exists in users table
-        cursor.execute("SELECT COUNT(*) FROM users WHERE id = ?", (user_id,))
+        # Check if user_id exists in people table
+        cursor.execute("SELECT COUNT(*) FROM people WHERE id = ?", (user_id,))
         if cursor.fetchone()[0] == 0:
             st.error(f"User with ID {user_id} does not exist.")
             return
@@ -32,30 +53,29 @@ def delete_data(conn, username, user_id):
             return
         
         # Proceed with deletion if user_id exists and has no references in logs table
-        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        cursor.execute("DELETE FROM people WHERE id = ?", (user_id,))
         conn.commit()
-        st.success(f"Deleted user with ID {user_id} from 'users' table")
+        st.success(f"Deleted user with ID {user_id} from 'people' table")
         log_action(username, user_id, f"Deleted user with ID {user_id}")
     except pyodbc.Error as e:
         st.error(f"Error deleting data: {e}")
 
-
 def insert_data(conn, username, name, age):
     try:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (name, age) VALUES (?, ?)", (name, age))
+        cursor.execute("INSERT INTO people (name, age) VALUES (?, ?)", (name, age))
         conn.commit()
         
         # Get the last inserted ID using SCOPE_IDENTITY()
         cursor.execute("SELECT SCOPE_IDENTITY()")
         user_id = cursor.fetchone()[0]
         
-        st.success(f"Inserted '{name}' with age {age} into 'users' table")
+        st.success(f"Inserted '{name}' with age {age} into 'people' table")
         log_action(username, user_id, f"Inserted '{name}' with age {age}")
     except pyodbc.Error as e:
         st.error(f"Error inserting data: {e}")
 
-def get_all_data(conn, table="users"):
+def get_all_data(conn, table="people"):
     try:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM {table}")
@@ -68,9 +88,9 @@ def get_all_data(conn, table="users"):
 def update_data(conn, username, user_id, name, age):
     try:
         cursor = conn.cursor()
-        cursor.execute("UPDATE users SET name = ?, age = ? WHERE id = ?", (name, age, user_id))
+        cursor.execute("UPDATE people SET name = ?, age = ? WHERE id = ?", (name, age, user_id))
         conn.commit()
-        st.success(f"Updated user with ID {user_id} in 'users' table")
+        st.success(f"Updated user with ID {user_id} in 'people' table")
         log_action(username, user_id, f"Updated user with ID {user_id} to name '{name}' and age {age}")
     except pyodbc.Error as e:
         st.error(f"Error updating data: {e}")
