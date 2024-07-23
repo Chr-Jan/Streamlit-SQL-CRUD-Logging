@@ -37,5 +37,5 @@ def connect_user_database():
         )
         return conn
     except pyodbc.Error as e:
-        st.error(f"Error connecting to log database: {e}")
+        st.error(f"Error connecting to user database: {e}")
         return None

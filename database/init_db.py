@@ -9,7 +9,8 @@ def create_people_table(conn):
             CREATE TABLE people (
                 id INT IDENTITY(1,1) PRIMARY KEY,
                 name VARCHAR(50),
-                age INT
+                age INT,
+                age_plus_two AS (age + 2)
             )
         """)
         conn.commit()

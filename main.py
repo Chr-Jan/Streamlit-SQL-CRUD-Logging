@@ -47,7 +47,7 @@ def display_users(conn):
     all_rows = get_all_data(conn, "people")
     if all_rows:
         for row in all_rows:
-            st.write(f"ID: {row[0]}, Name: {row[1]}, Age: {row[2]}")
+            st.write(f"ID: {row.id}, Name: {row.name}, Age: {row.age}, Age+2: {row.age_add_two}")
     else:
         st.info("No users found.")
 
@@ -60,6 +60,7 @@ def logout():
     st.experimental_rerun()
 
 def main():
+    
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
     if 'role' not in st.session_state:
