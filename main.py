@@ -1,7 +1,7 @@
 import pyodbc
 import streamlit as st
 from time import sleep
-from database.connection import connect_to_app_database
+from database.connection import connect_to_app_database, connect_to_log_database, connect_user_database
 from database.init_db import create_people_table, create_log_table, create_user_table, create_roles_table, insert_default_roles, insert_default_users
 from database.crud import get_all_data, insert_data, update_data, delete_data, log_action
 
@@ -38,16 +38,17 @@ def user_db(conn):
         except Exception as e:
             st.error(f"Error retrieving users data: {e}")
         finally:
-            conn.close() 
+            conn.close()
     else:
         st.error("Failed to connect to the database.")
 
-def display_users(conn):
+
+def display_people(conn):
     st.subheader("All Users")
     all_rows = get_all_data(conn, "people")
     if all_rows:
         for row in all_rows:
-            st.write(f"ID: {row.id}, Name: {row.name}, Age: {row.age}, Age+2: {row.age_add_two}")
+            st.write(f"ID: {row[0]}, Name: {row[1]}, Age: {row[2]}")
     else:
         st.info("No users found.")
 
@@ -59,8 +60,33 @@ def logout():
     sleep(0.5)
     st.experimental_rerun()
 
+def show_temp_message(message, duration=3):
+    """Show a temporary message that disappears after a given duration."""
+    with st.empty():
+        st.success(message)
+        sleep(duration)
+
 def main():
-    
+
+    conn = connect_to_app_database()
+    log_conn = connect_to_log_database()
+    user_conn = connect_user_database()
+
+    # Check if initialization has already been performed
+    if 'initialized' not in st.session_state or not st.session_state['initialized']:
+        if conn and log_conn and user_conn:
+            create_people_table(conn)
+            create_log_table(log_conn)
+            create_user_table(user_conn)
+            create_roles_table(user_conn)
+            insert_default_roles(user_conn)
+            insert_default_users(user_conn)
+            st.session_state['initialized'] = True
+        else:
+            print("Failed to connect to one or more databases.")
+            return  # Exit early if initialization fails
+
+
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
     if 'role' not in st.session_state:
@@ -89,21 +115,21 @@ def main():
                 st.subheader("Create User")
                 name = st.text_input("Name:")
                 age = st.number_input("Age:", min_value=0, max_value=150, step=1)
-                display_users(conn)
+                display_people(conn)
                 if st.button("Create"):
                     if name and age:
                         insert_data(conn, st.session_state['username'], name, age)
 
             elif operation == "Read":
                 st.subheader("View Users")
-                display_users(conn)
+                display_people(conn)
 
             elif operation == "Update":
                 st.subheader("Update User")
                 user_id = st.number_input("Enter User ID to update:", min_value=1, step=1)
                 name = st.text_input("New Name:")
                 age = st.number_input("New Age:", min_value=0, max_value=150, step=1)
-                display_users(conn)
+                display_people(conn)
                 if st.button("Update"):
                     if user_id and name and age:
                         update_data(conn, st.session_state['username'], user_id, name, age)
@@ -111,7 +137,7 @@ def main():
             elif operation == "Delete":
                 st.subheader("Delete User")
                 user_id = st.number_input("Enter User ID to delete:", min_value=1, step=1)
-                display_users(conn)
+                display_people(conn)
                 if st.button("Delete"):
                     if user_id:
                         delete_data(conn, st.session_state['username'], user_id)
