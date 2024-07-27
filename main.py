@@ -62,7 +62,9 @@ def user_db(conn):
                 for row in all_rows:
                     # Fetch role name based on role_id
                     role_cursor = conn.cursor()
+                    # Query to fetch the role name based on the role_id in the current row
                     role_cursor.execute("SELECT role_name FROM roles WHERE role_id = ?", (row.role_id,))
+                    # Fetch the result of the query; get the first element from the tuple (role_name)                    
                     role_name = role_cursor.fetchone()[0]
                     
                     st.write(f"ID: {row.user_id}, Username: {row.username}, Password: {row.password}, Role: {role_name}")
