@@ -49,8 +49,9 @@ def create_user_table(conn):
             CREATE TABLE users (
                 user_id INT IDENTITY(1,1) PRIMARY KEY,
                 username VARCHAR(50),
-                password VARCHAR(50)
-                role null
+                password VARCHAR(50),
+                role_id INT,
+                FOREIGN KEY (role_id) REFERENCES roles(role_id)
             )
             """
         )
@@ -58,6 +59,7 @@ def create_user_table(conn):
         print("Table 'users' created or already exists.")
     except pyodbc.Error as e:
         print(f"Error creating 'users' table: {e}")
+
 
 def create_roles_table(conn):
     try:
@@ -96,17 +98,27 @@ def insert_default_roles(conn):
 def insert_default_users(conn):
     try:
         cursor = conn.cursor()
-        users = [('admin', 'password'), ('user', 'password')]
 
-        for username, password in users:
-            # Check if the user already exists
+        # First, retrieve the role IDs for 'admin' and 'user'
+        cursor.execute("SELECT role_id FROM roles WHERE role_name = 'admin'")
+        admin_role_id = cursor.fetchone()[0]
+
+        cursor.execute("SELECT role_id FROM roles WHERE role_name = 'user'")
+        user_role_id = cursor.fetchone()[0]
+
+        users = [
+            ('admin', 'password', admin_role_id),
+            ('user', 'password', user_role_id)
+        ]
+
+        for username, password, role_id in users:
             cursor.execute("SELECT COUNT(*) FROM users WHERE username = ?", (username,))
             if cursor.fetchone()[0] == 0:
-                # Insert if user does not exist
-                cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+                cursor.execute("INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)", (username, password, role_id))
         
         conn.commit()
         print("Default users inserted if they did not already exist.")
     except pyodbc.Error as e:
         print(f"Error inserting default users: {e}")
+
         

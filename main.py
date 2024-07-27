@@ -1,9 +1,9 @@
 import pyodbc
 import streamlit as st
 from time import sleep
-from database.connection import connect_to_app_database, connect_to_log_database, connect_user_database
+from database.connection import connect_to_app_database
 from database.init_db import create_people_table, create_log_table, create_user_table, create_roles_table, insert_default_roles, insert_default_users
-from database.crud import get_all_data, insert_data, update_data, delete_data, log_action
+from database.crud import get_all_data, insert_data, update_data, delete_data
 
 # Simple authentication function
 def authenticate(username, password):
@@ -15,6 +15,34 @@ def authenticate(username, password):
         return True
     else:
         return False
+
+def authenticate(username, password):
+    conn = connect_to_app_database()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT password, role_id FROM users WHERE username = ?", (username,))
+            result = cursor.fetchone()
+            
+            if result and result[0] == password:
+                role_id = result[1]
+                
+                cursor.execute("SELECT role_name FROM roles WHERE role_id = ?", (role_id,))
+                role_name = cursor.fetchone()[0]
+                
+                st.session_state['role'] = role_name
+                return True
+            else:
+                return False
+        except pyodbc.Error as e:
+            st.error(f"Error authenticating user: {e}")
+            return False
+        finally:
+            conn.close()
+    else:
+        st.error("Failed to connect to the database.")
+        return False
+
 
 def display_logs(conn):
     st.subheader("All Logs")
@@ -32,7 +60,12 @@ def user_db(conn):
             all_rows = get_all_data(conn, "users")
             if all_rows:
                 for row in all_rows:
-                    st.write(f"ID: {row.user_id}, Username: {row.username}, Password: {row.password}, Role: {row.role}")
+                    # Fetch role name based on role_id
+                    role_cursor = conn.cursor()
+                    role_cursor.execute("SELECT role_name FROM roles WHERE role_id = ?", (row.role_id,))
+                    role_name = role_cursor.fetchone()[0]
+                    
+                    st.write(f"ID: {row.user_id}, Username: {row.username}, Password: {row.password}, Role: {role_name}")
             else:
                 st.info("No users found.")
         except Exception as e:
@@ -43,12 +76,13 @@ def user_db(conn):
         st.error("Failed to connect to the database.")
 
 
+
 def display_people(conn):
     st.subheader("All Users")
     all_rows = get_all_data(conn, "people")
     if all_rows:
         for row in all_rows:
-            st.write(f"ID: {row[0]}, Name: {row[1]}, Age: {row[2]}")
+            st.write(f"ID: {row[0]}, Name: {row[1]}, Age: {row[2]}, Age + 2: {row[3]},")
     else:
         st.info("No users found.")
 
@@ -69,18 +103,16 @@ def show_temp_message(message, duration=3):
 def main():
 
     conn = connect_to_app_database()
-    log_conn = connect_to_log_database()
-    user_conn = connect_user_database()
 
     # Check if initialization has already been performed
     if 'initialized' not in st.session_state or not st.session_state['initialized']:
-        if conn and log_conn and user_conn:
+        if conn:
             create_people_table(conn)
-            create_log_table(log_conn)
-            create_user_table(user_conn)
-            create_roles_table(user_conn)
-            insert_default_roles(user_conn)
-            insert_default_users(user_conn)
+            create_log_table(conn)
+            create_user_table(conn)
+            create_roles_table(conn)
+            insert_default_roles(conn)
+            insert_default_users(conn)
             st.session_state['initialized'] = True
         else:
             print("Failed to connect to one or more databases.")
