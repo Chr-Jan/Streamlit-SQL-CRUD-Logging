@@ -4,6 +4,7 @@ from time import sleep
 from database.connection import connect_to_app_database
 from database.init_db import create_people_table, create_log_table, create_user_table, create_roles_table, insert_default_roles, insert_default_users
 from database.crud import get_all_data, insert_data, update_data, delete_data
+from database.admin import user_db, display_logs
 
 # Simple authentication function
 def authenticate(username, password):
@@ -44,41 +45,6 @@ def authenticate(username, password):
         return False
 
 
-def display_logs(conn):
-    st.subheader("All Logs")
-    all_rows = get_all_data(conn, "logs")
-    if all_rows:
-        for row in all_rows:
-            st.write(f"ID: {row.log_id}, User ID: {row.user_id}, Username: {row.username}, Action: {row.action}, Timestamp: {row.timestamp}")
-    else:
-        st.info("No logs found.")
-
-def user_db(conn):
-    st.subheader("Users")
-    if conn:
-        try:
-            all_rows = get_all_data(conn, "users")
-            if all_rows:
-                for row in all_rows:
-                    # Fetch role name based on role_id
-                    role_cursor = conn.cursor()
-                    # Query to fetch the role name based on the role_id in the current row
-                    role_cursor.execute("SELECT role_name FROM roles WHERE role_id = ?", (row.role_id,))
-                    # Fetch the result of the query; get the first element from the tuple (role_name)                    
-                    role_name = role_cursor.fetchone()[0]
-                    
-                    st.write(f"ID: {row.user_id}, Username: {row.username}, Password: {row.password}, Role: {role_name}")
-            else:
-                st.info("No users found.")
-        except Exception as e:
-            st.error(f"Error retrieving users data: {e}")
-        finally:
-            conn.close()
-    else:
-        st.error("Failed to connect to the database.")
-
-
-
 def display_people(conn):
     st.subheader("All Users")
     all_rows = get_all_data(conn, "people")
@@ -94,13 +60,37 @@ def logout():
     st.session_state['role'] = None
     st.info("Logged out successfully!")
     sleep(0.5)
-    st.experimental_rerun()
+    st.rerun()
 
 def show_temp_message(message, duration=3):
     """Show a temporary message that disappears after a given duration."""
     with st.empty():
         st.success(message)
         sleep(duration)
+
+# Registration function
+def register_user(conn, username, password, role_name):
+    try:
+        cursor = conn.cursor()
+
+        # Check if the username already exists
+        cursor.execute("SELECT COUNT(*) FROM users WHERE username = ?", (username,))
+        if cursor.fetchone()[0] > 0:
+            st.error("Username already exists.")
+            return
+
+        # Retrieve the role ID for the given role name
+        cursor.execute("SELECT role_id FROM roles WHERE role_name = ?", (role_name,))
+        role_id = cursor.fetchone()[0]
+
+        # Insert the new user into the users table
+        cursor.execute("INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)",
+                       (username, password, role_id))
+        conn.commit()
+        st.success(f"Registered new user: {username}")
+
+    except pyodbc.Error as e:
+        st.error(f"Error registering user: {e}")
 
 def main():
 
@@ -126,6 +116,10 @@ def main():
     if 'role' not in st.session_state:
         st.session_state['role'] = None
 
+    # Display the registration form if not authenticated
+    if not st.session_state['authenticated']:
+        st.title("User Registration / Login")
+
     if not st.session_state['authenticated']:
         st.title("Login")
         username = st.text_input("Username")
@@ -137,6 +131,19 @@ def main():
                 st.success(f"Logged in as {username}")
             else:
                 st.error("Invalid username or password")
+
+        # Registration Form
+        st.subheader("Register New User")
+        reg_username = st.text_input("New Username")
+        reg_password = st.text_input("New Password", type="password")
+        reg_role = st.selectbox("Role", ["user", "admin"])
+        if st.button("Register"):
+            if reg_username and reg_password and reg_role:
+                if conn:
+                    register_user(conn, reg_username, reg_password, reg_role)
+                else:
+                    st.error("Failed to connect to the database.")
+
 
     if st.session_state['authenticated']:
         st.title("CRUD Operations")
