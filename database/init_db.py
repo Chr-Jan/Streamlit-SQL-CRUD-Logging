@@ -50,6 +50,7 @@ def create_user_table(conn):
                 user_id INT IDENTITY(1,1) PRIMARY KEY,
                 username VARCHAR(50),
                 password VARCHAR(50)
+                role null
             )
             """
         )
@@ -108,4 +109,4 @@ def insert_default_users(conn):
         print("Default users inserted if they did not already exist.")
     except pyodbc.Error as e:
         print(f"Error inserting default users: {e}")
-
+        

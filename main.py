@@ -32,7 +32,7 @@ def user_db(conn):
             all_rows = get_all_data(conn, "users")
             if all_rows:
                 for row in all_rows:
-                    st.write(f"ID: {row.user_id}, Username: {row.username}, Password: {row.password}")
+                    st.write(f"ID: {row.user_id}, Username: {row.username}, Password: {row.password}, Role: {row.role}")
             else:
                 st.info("No users found.")
         except Exception as e:
