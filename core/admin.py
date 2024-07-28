@@ -1,7 +1,7 @@
 import pyodbc
 import streamlit as st
-from database.connection import connect_to_app_database
-from database.crud import get_all_data
+from core.connection import connect_to_app_database
+from core.crud import get_all_data
 
 def user_db(conn):
     st.subheader("Users")
@@ -35,5 +35,4 @@ def display_logs(conn):
             st.write(f"ID: {row.log_id}, User ID: {row.user_id}, Username: {row.username}, Action: {row.action}, Timestamp: {row.timestamp}")
     else:
         st.info("No logs found.")
-
 

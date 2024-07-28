@@ -1,7 +1,7 @@
 import pyodbc
 import streamlit as st
 from datetime import datetime
-from database.connection import connect_to_app_database
+from core.connection import connect_to_app_database
 
 def log_action(username, user_id, action):
     log_conn = connect_to_app_database()
