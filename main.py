@@ -44,6 +44,30 @@ def authenticate(username, password):
         st.error("Failed to connect to the database.")
         return False
 
+def register_user(username, password, role_name):
+    conn = connect_to_app_database()
+    if conn:
+        try:
+            cursor = conn.cursor()
+
+            # Fetch role_id from role_name
+            cursor.execute("SELECT role_id FROM roles WHERE role_name = ?", (role_name,))
+            role_id = cursor.fetchone()[0]
+
+            # Check if the username already exists
+            cursor.execute("SELECT COUNT(*) FROM users WHERE username = ?", (username,))
+            if cursor.fetchone()[0] > 0:
+                st.error(f"Username '{username}' already exists.")
+                return
+
+            # Insert new user
+            cursor.execute("INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)", (username, password, role_id))
+            conn.commit()
+            st.success(f"User '{username}' registered successfully!")
+        except pyodbc.Error as e:
+            st.error(f"Error registering user: {e}")
+        finally:
+            conn.close()
 
 def display_people(conn):
     st.subheader("All Users")
