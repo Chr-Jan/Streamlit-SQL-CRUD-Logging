@@ -146,16 +146,20 @@ def main():
                 if st.button("Delete"):
                     if user_id:
                         delete_data(conn, st.session_state['username'], user_id)
+            
+            if st.session_state['role'] == 'admin':
+                st.title("Admin Operations")
+                st.sidebar.header("Admin Operations")
+                admin_operation = st.sidebar.selectbox("Select Admin Operation", ("View Logs", "Manage Users"))
+
+                if admin_operation == "View Logs":
+                    display_logs(conn)
+                elif admin_operation == "Manage Users":
+                    user_db(conn)
 
             if st.sidebar.button("Logout"):
                 logout()
 
-            if st.session_state['role'] == 'admin':
-                st.sidebar.header("Admin Operations")
-                if st.sidebar.button("View Logs"):
-                    display_logs(conn)
-                if st.sidebar.button("Users"):
-                    user_db(conn)
         else:
             st.error("Failed to connect to the database")
 
