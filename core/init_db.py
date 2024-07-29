@@ -40,6 +40,30 @@ def create_log_table(conn):
     except pyodbc.Error as e:
         print(f"Error creating 'logs' table: {e}")
 
+def create_food_production_table(conn):
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            IF OBJECT_ID('dbo.food_production', 'U') IS NULL
+            BEGIN
+                CREATE TABLE dbo.food_production (
+                    production_id INT IDENTITY(1,1) PRIMARY KEY,
+                    food_name VARCHAR(50),
+                    production_date DATE,
+                    quantity INT,
+                    goal_reacted BIT,
+                    CONSTRAINT ck_goal_reacted_ischk CHECK (goal_reacted IN (0, 1))
+                )
+            END
+            """
+        )
+        conn.commit()
+        print("Table 'food_production' created or already exists.")
+    except pyodbc.Error as e:
+        print(f"Error creating 'food_production' table: {e}")
+
+
 def create_user_table(conn):
     try:
         cursor = conn.cursor()

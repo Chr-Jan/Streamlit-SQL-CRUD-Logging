@@ -2,7 +2,7 @@ import pyodbc
 import streamlit as st
 from time import sleep
 from core.connection import connect_to_app_database
-from core.init_db import create_people_table, create_log_table, create_user_table, create_roles_table, insert_default_roles, insert_default_users
+from core.init_db import create_people_table, create_log_table, create_user_table, create_roles_table, insert_default_roles, insert_default_users, create_food_production_table
 from core.crud import get_all_data, insert_data, update_data, delete_data
 from core.admin import user_db, display_logs
 from core.auth import authenticate, register_user
@@ -61,6 +61,7 @@ def main():
     # Check if initialization has already been performed
     if 'initialized' not in st.session_state or not st.session_state['initialized']:
         if conn:
+            create_food_production_table(conn)
             create_people_table(conn)
             create_log_table(conn)
             create_user_table(conn)
@@ -113,7 +114,7 @@ def main():
         conn = connect_to_app_database()
         if conn:
             st.sidebar.header("CRUD Operations")
-            operation = st.sidebar.radio("Select Operation", ("Create", "Read", "Update", "Delete"))
+            operation = st.sidebar.selectbox("Select Operation", ("Create", "Read", "Update", "Delete"))
 
             if operation == "Create":
                 st.subheader("Create User")
