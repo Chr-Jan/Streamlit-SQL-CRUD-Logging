@@ -56,7 +56,6 @@ def register_user(conn, username, password, role_name):
         st.error(f"Error registering user: {e}")
 
 def main():
-
     conn = connect_to_app_database()
 
     # Check if initialization has already been performed
@@ -72,20 +71,16 @@ def main():
             seed_food_production_table(conn)
             st.session_state['initialized'] = True
         else:
-            print("Failed to connect to the database.")
+            st.error("Failed to connect to the database.")
             return  # Exit early if initialization fails
-
 
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
     if 'role' not in st.session_state:
         st.session_state['role'] = None
 
-    # Display the registration form if not authenticated
     if not st.session_state['authenticated']:
         st.title("User Registration / Login")
-
-    if not st.session_state['authenticated']:
         st.title("Login")
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
@@ -98,7 +93,6 @@ def main():
             else:
                 st.error("Invalid username or password")
 
-        # Registration Form
         st.subheader("Register New User")
         reg_username = st.text_input("New Username")
         reg_password = st.text_input("New Password", type="password")
@@ -110,10 +104,8 @@ def main():
                 else:
                     st.error("Failed to connect to the database.")
 
-
     if st.session_state['authenticated']:
-        st.title("Choose Operations")
-        
+        st.title("Data:")
         if conn:
             main_operation = st.sidebar.selectbox("Select Operation", 
                 ("People Operations", "Food Operations", "Admin Operations"))
@@ -167,17 +159,16 @@ def main():
                     else:
                         st.error("Failed to fetch food production data.")
                 
-                elif people_operation == "Insert Data":
+                elif food_operation == "Insert Data":
                     st.subheader("Create food insertion information")
-                    food_name = st.text_input("Food Name: ")
-                    production_date = st.date_input("Day of production: ")
-                    quantity = st.number_input(f"Amount of {food_name} made: ")
+                    food_name = st.text_input("Food Name:")
+                    production_date = st.date_input("Day of production:")
+                    quantity = st.number_input(f"Amount of {food_name} made:")
                     st.write("0 = no, 1 = yes")
-                    goal_reacted = st.number_input("Age:", min_value=0, max_value=1, step=1)
-                    display_people(conn)
+                    goal_reacted = st.number_input("Goal reached:", min_value=0, max_value=1, step=1)
                     if st.button("Create"):
-                        if name and age:
-                            insert_food_production(conn, st.session_state['username'], food_name, production_date, quantity, goal_reacted)
+                        if food_name and production_date and quantity and goal_reacted is not None:
+                            insert_food_production(conn, food_name, production_date, quantity, goal_reacted)
 
             elif main_operation == "Admin Operations":
                 if st.session_state['role'] == 'admin':
@@ -200,7 +191,6 @@ def main():
 
         else:
             st.error("Failed to connect to the database")
-
 
 if __name__ == "__main__":
     main()
