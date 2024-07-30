@@ -2,7 +2,7 @@ import pyodbc
 import streamlit as st
 from time import sleep
 from core.connection import connect_to_app_database
-from core.init_db import create_people_table, create_log_table, create_user_table, create_roles_table, insert_default_roles, insert_default_users, create_food_production_table
+from core.init_db import create_people_table, create_log_table, create_user_table, create_roles_table, insert_default_roles, insert_default_users, create_food_production_table, seed_food_production_table
 from core.crud import get_all_data, insert_data, update_data, delete_data
 from core.admin import user_db, display_logs
 from core.auth import authenticate, register_user
@@ -68,6 +68,7 @@ def main():
             create_roles_table(conn)
             insert_default_roles(conn)
             insert_default_users(conn)
+            seed_food_production_table(conn)
             st.session_state['initialized'] = True
         else:
             print("Failed to connect to one or more databases.")
