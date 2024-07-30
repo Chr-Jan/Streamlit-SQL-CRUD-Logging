@@ -112,69 +112,83 @@ def main():
 
 
     if st.session_state['authenticated']:
-        st.title("People: Operations")
-        conn = connect_to_app_database()
+        st.title("Choose Operations")
+        
         if conn:
-            st.sidebar.header("People: Operations")
-            operation = st.sidebar.selectbox("Select Operation", ("Create", "Read", "Update", "Delete"))
+            main_operation = st.sidebar.selectbox("Select Operation", 
+                ("People Operations", "Food Operations", "Admin Operations"))
 
-            if operation == "Create":
-                st.subheader("Create User")
-                name = st.text_input("Name:")
-                age = st.number_input("Age:", min_value=0, max_value=150, step=1)
-                display_people(conn)
-                if st.button("Create"):
-                    if name and age:
-                        insert_data(conn, st.session_state['username'], name, age)
+            if main_operation == "People Operations":
+                st.sidebar.header("People Operations")
+                people_operation = st.sidebar.selectbox("Select People Operation", 
+                    ("Create", "Read", "Update", "Delete"))
 
-            elif operation == "Read":
-                st.subheader("View Users")
-                display_people(conn)
+                if people_operation == "Create":
+                    st.subheader("Create User")
+                    name = st.text_input("Name:")
+                    age = st.number_input("Age:", min_value=0, max_value=150, step=1)
+                    display_people(conn)
+                    if st.button("Create"):
+                        if name and age:
+                            insert_data(conn, st.session_state['username'], name, age)
 
-            elif operation == "Update":
-                st.subheader("Update User")
-                user_id = st.number_input("Enter User ID to update:", min_value=1, step=1)
-                name = st.text_input("New Name:")
-                age = st.number_input("New Age:", min_value=0, max_value=150, step=1)
-                display_people(conn)
-                if st.button("Update"):
-                    if user_id and name and age:
-                        update_data(conn, st.session_state['username'], user_id, name, age)
+                elif people_operation == "Read":
+                    st.subheader("View Users")
+                    display_people(conn)
 
-            elif operation == "Delete":
-                st.subheader("Delete User")
-                user_id = st.number_input("Enter User ID to delete:", min_value=1, step=1)
-                display_people(conn)
-                if st.button("Delete"):
-                    if user_id:
-                        delete_data(conn, st.session_state['username'], user_id)
-            
-            st.title("Food: Operations")
-                
-            if st.sidebar.selectbox("Select Food Operation", ("View Food",)) == "View Food":
-                st.subheader("View Food Information")
-                df = get_food_production_data(conn)
-                if df is not None:
-                    st.dataframe(df)
+                elif people_operation == "Update":
+                    st.subheader("Update User")
+                    user_id = st.number_input("Enter User ID to update:", min_value=1, step=1)
+                    name = st.text_input("New Name:")
+                    age = st.number_input("New Age:", min_value=0, max_value=150, step=1)
+                    display_people(conn)
+                    if st.button("Update"):
+                        if user_id and name and age:
+                            update_data(conn, st.session_state['username'], user_id, name, age)
+
+                elif people_operation == "Delete":
+                    st.subheader("Delete User")
+                    user_id = st.number_input("Enter User ID to delete:", min_value=1, step=1)
+                    display_people(conn)
+                    if st.button("Delete"):
+                        if user_id:
+                            delete_data(conn, st.session_state['username'], user_id)
+
+            elif main_operation == "Food Operations":
+                st.sidebar.header("Food Operations")
+                food_operation = st.sidebar.selectbox("Select Food Operation", 
+                    ("View Food",))
+
+                if food_operation == "View Food":
+                    st.subheader("View Food Information")
+                    df = get_food_production_data(conn)
+                    if df is not None:
+                        st.dataframe(df)
+                    else:
+                        st.error("Failed to fetch food production data.")
+
+            elif main_operation == "Admin Operations":
+                if st.session_state['role'] == 'admin':
+                    st.sidebar.header("Admin Operations")
+                    admin_operation = st.sidebar.selectbox("Select Admin Operation", 
+                        ("View Logs", "Manage Users"))
+
+                    if admin_operation == "View Logs":
+                        st.subheader("View Logs")
+                        display_logs(conn)
+                    
+                    elif admin_operation == "Manage Users":
+                        st.subheader("Manage Users")
+                        user_db(conn)
                 else:
-                    st.error("Failed to fetch food production data.")
-
-
-            if st.session_state['role'] == 'admin':
-                st.title("Admin Operations")
-                st.sidebar.header("Admin Operations")
-                admin_operation = st.sidebar.selectbox("Select Admin Operation", ("View Logs", "Manage Users"))
-
-                if admin_operation == "View Logs":
-                    display_logs(conn)
-                elif admin_operation == "Manage Users":
-                    user_db(conn)
+                    st.error("You do not have permission to access admin operations.")
 
             if st.sidebar.button("Logout"):
                 logout()
 
         else:
             st.error("Failed to connect to the database")
+
 
 if __name__ == "__main__":
     main()
