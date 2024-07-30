@@ -20,7 +20,9 @@ This project showcases basic CRUD (Create, Read, Update, Delete) operations usin
 
 ### Entity Relationship Diagram
 
+<ul>
 <img src="github_image/Streamlit-SQL-CRUD-Logging.jpeg"/>
+</ul>
 
 ## Useful Links
 
