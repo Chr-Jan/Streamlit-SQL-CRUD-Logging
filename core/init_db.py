@@ -9,7 +9,7 @@ def create_people_table(conn):
             IF OBJECT_ID('dbo.people', 'U') IS NULL
             BEGIN
                 CREATE TABLE people (
-                    id INT IDENTITY(1,1) PRIMARY KEY,
+                    people_id INT IDENTITY(1,1) PRIMARY KEY,
                     name VARCHAR(50),
                     age INT,
                     age_plus_two AS (age + 2)
@@ -22,28 +22,28 @@ def create_people_table(conn):
     except pyodbc.Error as e:
         print(f"Error creating 'people' table: {e}")
 
-def create_log_table(conn):
+def create_log_people_table(conn):
     try:
         cursor = conn.cursor()
         cursor.execute(
             """
-            IF OBJECT_ID('dbo.logs', 'U') IS NULL
+            IF OBJECT_ID('dbo.log_people', 'U') IS NULL
             BEGIN
-                CREATE TABLE logs (
+                CREATE TABLE dbo.log_people (
                     log_id INT IDENTITY(1,1) PRIMARY KEY,
                     user_id INT,
                     username VARCHAR(50),
                     action VARCHAR(255),
                     timestamp DATETIME,
-                    FOREIGN KEY (user_id) REFERENCES users(user_id)
+                    FOREIGN KEY (user_id) REFERENCES dbo.users(user_id)
                 )
             END
             """
         )
         conn.commit()
-        print("Table 'logs' created or already exists.")
+        print("Table 'log_people' created or already exists.")
     except pyodbc.Error as e:
-        print(f"Error creating 'logs' table: {e}")
+        print(f"Error creating 'log_people' table: {e}")
 
 def create_food_production_table(conn):
     try:

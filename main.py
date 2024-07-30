@@ -2,15 +2,15 @@ import pyodbc
 import streamlit as st
 from time import sleep
 from core.connection import connect_to_app_database
-from core.init_db import create_people_table, create_log_table, create_user_table, create_roles_table, insert_default_roles, insert_default_users, create_food_production_table, seed_food_production_table
-from core.crud import get_all_data, insert_data, update_data, delete_data
-from core.crud_food import get_food_production_data
-from core.admin import user_db, display_logs
+from core.init_db import create_people_table, create_log_people_table, create_user_table, create_roles_table, insert_default_roles, insert_default_users, create_food_production_table, seed_food_production_table
+from core.crud_people import get_all_data_people, insert_data, update_data, delete_data
+from core.crud_food import get_food_production_data, insert_food_production
+from core.admin import user_db, display_log_people
 from core.auth import authenticate, register_user
 
 def display_people(conn):
     st.subheader("All Users")
-    all_rows = get_all_data(conn, "people")
+    all_rows = get_all_data_people(conn, "people")
     if all_rows:
         for row in all_rows:
             st.write(f"ID: {row[0]}, Name: {row[1]}, Age: {row[2]}, Age + 2: {row[3]},")
@@ -62,17 +62,17 @@ def main():
     # Check if initialization has already been performed
     if 'initialized' not in st.session_state or not st.session_state['initialized']:
         if conn:
-            create_food_production_table(conn)
-            create_people_table(conn)
-            create_log_table(conn)
-            create_user_table(conn)
             create_roles_table(conn)
+            create_user_table(conn)
+            create_people_table(conn)
+            create_food_production_table(conn)
+            create_log_people_table(conn)
             insert_default_roles(conn)
             insert_default_users(conn)
             seed_food_production_table(conn)
             st.session_state['initialized'] = True
         else:
-            print("Failed to connect to one or more databases.")
+            print("Failed to connect to the database.")
             return  # Exit early if initialization fails
 
 
@@ -157,7 +157,7 @@ def main():
             elif main_operation == "Food Operations":
                 st.sidebar.header("Food Operations")
                 food_operation = st.sidebar.selectbox("Select Food Operation", 
-                    ("View Food",))
+                    ("View Food", "Insert Data"))
 
                 if food_operation == "View Food":
                     st.subheader("View Food Information")
@@ -166,6 +166,18 @@ def main():
                         st.dataframe(df)
                     else:
                         st.error("Failed to fetch food production data.")
+                
+                elif people_operation == "Insert Data":
+                    st.subheader("Create food insertion information")
+                    food_name = st.text_input("Food Name: ")
+                    production_date = st.date_input("Day of production: ")
+                    quantity = st.number_input(f"Amount of {food_name} made: ")
+                    st.write("0 = no, 1 = yes")
+                    goal_reacted = st.number_input("Age:", min_value=0, max_value=1, step=1)
+                    display_people(conn)
+                    if st.button("Create"):
+                        if name and age:
+                            insert_food_production(conn, st.session_state['username'], food_name, production_date, quantity, goal_reacted)
 
             elif main_operation == "Admin Operations":
                 if st.session_state['role'] == 'admin':
@@ -175,7 +187,7 @@ def main():
 
                     if admin_operation == "View Logs":
                         st.subheader("View Logs")
-                        display_logs(conn)
+                        display_log_people(conn)
                     
                     elif admin_operation == "Manage Users":
                         st.subheader("Manage Users")

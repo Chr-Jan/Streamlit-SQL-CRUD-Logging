@@ -43,3 +43,4 @@ def insert_food_production(conn, food_name, production_date, quantity):
         print("Record inserted successfully.")
     except pyodbc.Error as e:
         print(f"Error inserting record into 'food_production' table: {e}")
+

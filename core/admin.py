@@ -1,13 +1,13 @@
 import pyodbc
 import streamlit as st
 from core.connection import connect_to_app_database
-from core.crud import get_all_data
+from core.crud_people import get_all_data_people
 
 def user_db(conn):
     st.subheader("Users")
     if conn:
         try:
-            all_rows = get_all_data(conn, "users")
+            all_rows = get_all_data_people(conn, "users")
             if all_rows:
                 for row in all_rows:
                     # Fetch role name based on role_id
@@ -27,12 +27,13 @@ def user_db(conn):
     else:
         st.error("Failed to connect to the database.")
 
-def display_logs(conn):
+def display_log_people(conn):
     st.subheader("All Logs")
-    all_rows = get_all_data(conn, "logs")
+    all_rows = get_all_data_people(conn, "log_people")
     if all_rows:
         for row in all_rows:
             st.write(f"ID: {row.log_id}, User ID: {row.user_id}, Username: {row.username}, Action: {row.action}, Timestamp: {row.timestamp}")
     else:
         st.info("No logs found.")
+
 
