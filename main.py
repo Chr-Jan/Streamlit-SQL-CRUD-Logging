@@ -4,6 +4,7 @@ from time import sleep
 from core.connection import connect_to_app_database
 from core.init_db import create_people_table, create_log_table, create_user_table, create_roles_table, insert_default_roles, insert_default_users, create_food_production_table, seed_food_production_table
 from core.crud import get_all_data, insert_data, update_data, delete_data
+from core.crud_food import get_food_production_data
 from core.admin import user_db, display_logs
 from core.auth import authenticate, register_user
 
@@ -111,10 +112,10 @@ def main():
 
 
     if st.session_state['authenticated']:
-        st.title("CRUD Operations")
+        st.title("People: Operations")
         conn = connect_to_app_database()
         if conn:
-            st.sidebar.header("CRUD Operations")
+            st.sidebar.header("People: Operations")
             operation = st.sidebar.selectbox("Select Operation", ("Create", "Read", "Update", "Delete"))
 
             if operation == "Create":
@@ -148,6 +149,17 @@ def main():
                     if user_id:
                         delete_data(conn, st.session_state['username'], user_id)
             
+            st.title("Food: Operations")
+                
+            if st.sidebar.selectbox("Select Food Operation", ("View Food",)) == "View Food":
+                st.subheader("View Food Information")
+                df = get_food_production_data(conn)
+                if df is not None:
+                    st.dataframe(df)
+                else:
+                    st.error("Failed to fetch food production data.")
+
+
             if st.session_state['role'] == 'admin':
                 st.title("Admin Operations")
                 st.sidebar.header("Admin Operations")
