@@ -31,7 +31,8 @@ def create_log_table(conn):
                 user_id INT,
                 username VARCHAR(50),
                 action VARCHAR(255),
-                timestamp DATETIME
+                timestamp DATETIME,
+                FOREIGN KEY (user_id) REFERENCES users(user_id)
             )
             """
         )
@@ -39,6 +40,7 @@ def create_log_table(conn):
         print("Table 'logs' created or already exists.")
     except pyodbc.Error as e:
         print(f"Error creating 'logs' table: {e}")
+
 
 def create_food_production_table(conn):
     try:

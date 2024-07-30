@@ -18,6 +18,10 @@ This project showcases basic CRUD (Create, Read, Update, Delete) operations usin
         <li><strong>Session State Management:</strong> Utilizes Streamlit's session_state feature to maintain the database connection across different interactions, improving performance and usability.</li>
     </ul>
 
+### Entity Relationship Diagram
+
+<img src="github_image/Streamlit-SQL-CRUD-Logging.jpeg"/>
+
 ## Useful Links
 
 www.draw.io
