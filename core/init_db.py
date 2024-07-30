@@ -130,7 +130,6 @@ def insert_default_users(conn):
     try:
         cursor = conn.cursor()
 
-        # First, retrieve the role IDs for 'admin' and 'user'
         cursor.execute("SELECT role_id FROM roles WHERE role_name = 'admin'")
         admin_role_id = cursor.fetchone()[0]
 
@@ -155,20 +154,26 @@ def insert_default_users(conn):
 def seed_food_production_table(conn):
     try:
         cursor = conn.cursor()
-        cursor.executemany(
-            """
-            INSERT INTO dbo.food_production (food_name, production_date, quantity, goal_reacted)
-            VALUES (?, ?, ?, ?)
-            """,
-            [
-                ('Apples', '2024-01-15', 150, 1),
-                ('Bananas', '2024-02-10', 200, 0),
-                ('Carrots', '2024-03-05', 300, 1),
-                ('Potatoes', '2024-04-20', 400, 0),
-                ('Tomatoes', '2024-05-15', 250, 1)
-            ]
-        )
-        conn.commit()
-        print("Seed data inserted into 'food_production' table.")
+
+        # Check if the table is empty before inserting seed data
+        cursor.execute("SELECT COUNT(*) FROM dbo.food_production")
+        if cursor.fetchone()[0] == 0:
+            cursor.executemany(
+                """
+                INSERT INTO dbo.food_production (food_name, production_date, quantity, goal_reacted)
+                VALUES (?, ?, ?, ?)
+                """,
+                [
+                    ('Apples', '2024-01-15', 150, 1),
+                    ('Bananas', '2024-02-10', 200, 0),
+                    ('Carrots', '2024-03-05', 300, 1),
+                    ('Potatoes', '2024-04-20', 400, 0),
+                    ('Tomatoes', '2024-05-15', 250, 1)
+                ]
+            )
+            conn.commit()
+            print("Seed data inserted into 'food_production' table.")
+        else:
+            print("Table 'food_production' already has data. Seed data not inserted.")
     except pyodbc.Error as e:
         print(f"Error inserting seed data into 'food_production' table: {e}")
