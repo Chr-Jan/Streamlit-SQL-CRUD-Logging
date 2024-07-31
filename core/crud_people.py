@@ -41,33 +41,36 @@ def insert_data(conn, username, name, age):
     except pyodbc.Error as e:
         st.error(f"Error inserting data: {e}")
 
-def update_data(conn, username, user_id, name, age):
+def update_data(conn, username, people_id, name, age):
     try:
         cursor = conn.cursor()
-        cursor.execute("UPDATE people SET name = ?, age = ? WHERE user_id = ?", (name, age, user_id))
+        cursor.execute("UPDATE people SET name = ?, age = ? WHERE people_id = ?", (name, age, people_id))
         conn.commit()
-        st.success(f"Updated user with ID {user_id} in 'people' table")
-        log_action(username, user_id, f"Updated user with ID {user_id} to name '{name}' and age {age}")
+        st.success(f"Updated user with ID {people_id} in 'people' table")
+        log_action(username, people_id, f"Updated user with ID {people_id} to name '{name}' and age {age}")
     except pyodbc.Error as e:
         st.error(f"Error updating data: {e}")
 
-def delete_data(conn, username, user_id):
+def delete_data(conn, username, people_id):
     try:
         cursor = conn.cursor()
 
-        # Check if the user exists in the 'people' table
-        cursor.execute("SELECT COUNT(*) FROM people WHERE people_id = ?", (user_id,))
+        # Check if the user exists
+        cursor.execute("SELECT COUNT(*) FROM people WHERE people_id = ?", (people_id,))
         if cursor.fetchone()[0] == 0:
-            st.error(f"User with ID {user_id} does not exist in 'people' table.")
+            st.error(f"User with ID {people_id} does not exist.")
             return
-
-        # Delete the user from the 'people' table
-        cursor.execute("DELETE FROM people WHERE people_id = ?", (user_id,))
+        
+        # Check if there are associated logs
+        cursor.execute("SELECT COUNT(*) FROM log_people WHERE people_id = ?", (people_id,))
+        if cursor.fetchone()[0] > 0:
+            st.error(f"Cannot delete user with ID {people_id} because there are logs associated with this user.")
+            return
+        
+        # Delete the user
+        cursor.execute("DELETE FROM people WHERE people_id = ?", (people_id,))
         conn.commit()
-        st.success(f"Deleted user with ID {user_id} from 'people' table")
-        
-        # Log the action
-        log_action(username, user_id, f"Deleted user with ID {user_id}")
-        
+        st.success(f"Deleted user with ID {people_id} from 'people' table")
+        log_action(username, people_id, f"Deleted user with ID {people_id}")
     except pyodbc.Error as e:
         st.error(f"Error deleting data: {e}")

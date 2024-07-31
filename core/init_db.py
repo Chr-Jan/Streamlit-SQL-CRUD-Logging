@@ -32,10 +32,12 @@ def create_log_people_table(conn):
                 CREATE TABLE dbo.log_people (
                     log_id INT IDENTITY(1,1) PRIMARY KEY,
                     user_id INT,
+                    people_id INT,
                     username VARCHAR(50),
                     action VARCHAR(255),
                     timestamp DATETIME,
-                    FOREIGN KEY (user_id) REFERENCES dbo.users(user_id)
+                    FOREIGN KEY (user_id) REFERENCES dbo.users(user_id),
+                    FOREIGN KEY (people_id) REFERENCES dbo.people(people_id)
                 )
             END
             """
