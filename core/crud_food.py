@@ -53,6 +53,5 @@ def delete_food_data(conn, username, production_id):
         cursor.execute("DELETE FROM dbo.food_production WHERE production_id = ?", (production_id,))
         conn.commit()
         st.success(f"Deleted food item with ID {production_id} from 'food_production' table")
-        log_action(username, production_id, f"Deleted food item with ID {production_id}")
     except pyodbc.Error as e:
         st.error(f"Error deleting data: {e}")
