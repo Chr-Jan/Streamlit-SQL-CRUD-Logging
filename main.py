@@ -4,7 +4,7 @@ from time import sleep
 from core.connection import connect_to_app_database
 from core.init_db import create_people_table, create_log_people_table, create_user_table, create_roles_table, insert_default_roles, insert_default_users, create_food_production_table, seed_food_production_table
 from core.crud_people import get_all_data_people, insert_data, update_data, delete_data
-from core.crud_food import get_food_production_data, insert_food_production, delete_food_data
+from core.crud_food import get_food_production_data, insert_food_production, delete_food_data, update_food_data
 from core.admin import user_db, display_log_people
 from core.auth import authenticate, register_user
 
@@ -149,7 +149,7 @@ def main():
             elif main_operation == "Food Operations":
                 st.sidebar.header("Food Operations")
                 food_operation = st.sidebar.selectbox("Select Food Operation", 
-                    ("View Food", "Insert Data", "Delete"))
+                    ("View Food", "Insert Data", "Delete", "Update"))
 
                 if food_operation == "View Food":
                     st.subheader("View Food Information")
@@ -176,6 +176,25 @@ def main():
                     else:
                         st.error("Failed to fetch food production data.")
                 
+                elif food_operation == "Update":
+                    st.subheader("Update Food Information")
+                    production_id = st.number_input("Enter Food Item ID to update:", min_value=1, step=1)
+                    food_name = st.text_input("New Name:")
+                    production_date = st.date_input("New Production Date:")
+                    quantity = st.number_input(f"New amount of {food_name} made:")
+                    st.write("0 = no, 1 = yes")
+                    goal_reacted = st.number_input("New Goal reached:", min_value=0, max_value=1, step=1)
+
+                    df = get_food_production_data(conn)
+                    if df is not None:
+                        st.dataframe(df)
+                    else:
+                        st.error("Failed to fetch food production data.")
+
+                    if st.button("Update"):
+                        if production_id and food_name and production_date and quantity and goal_reacted is not None:
+                            update_food_data(conn, st.session_state['username'], production_id, food_name, production_date, quantity, goal_reacted)
+
                 elif food_operation == "Delete":
                     st.subheader("Delete Food Information")
                     production_id = st.number_input("Enter Food Item ID to delete:", min_value=1, step=1)

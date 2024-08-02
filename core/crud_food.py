@@ -39,6 +39,23 @@ def insert_food_production(conn, food_name, production_date, quantity, goal_reac
     except pyodbc.Error as e:
         st.error(f"Error inserting record into 'food_production' table: {e}")
 
+def update_food_data(conn, username, production_id, food_name, production_date, quantity, goal_reacted):
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            UPDATE dbo.food_production
+            SET food_name = ?, production_date = ?, quantity = ?, goal_reacted = ?
+            WHERE production_id = ?
+            """,
+            (food_name, production_date, quantity, goal_reacted, production_id)
+        )
+        conn.commit()
+        st.success(f"Updated food item with ID {production_id} in 'food_production' table")
+        log_action(username, production_id, f"Updated food item with ID {production_id} to food_name '{food_name}', production_date {production_date}, quantity {quantity}, and goal_reacted {goal_reacted}")
+    except pyodbc.Error as e:
+        st.error(f"Error updating data: {e}")
+
 def delete_food_data(conn, username, production_id):
     try:
         cursor = conn.cursor()
